@@ -4,19 +4,17 @@
     "url": "https://aether.dhruvaldarji.com/health",
     "icon": "https://icons.duckduckgo.com/ip3/aether.dhruvaldarji.com.ico",
     "slug": "aether",
-    "status": "up",
-    "uptime": "8.93%",
-    "uptimeDay": "8.93%",
-    "uptimeWeek": "8.93%",
-    "uptimeMonth": "8.93%",
-    "uptimeYear": "8.93%",
-    "time": 329,
-    "timeDay": 329,
-    "timeWeek": 329,
-    "timeMonth": 329,
-    "timeYear": 329,
-    "dailyMinutesDown": {
-      "2026-11-12": 3
-    }
+    "status": "down",
+    "uptime": "100.00%",
+    "uptimeDay": "100.00%",
+    "uptimeWeek": "100.00%",
+    "uptimeMonth": "100.00%",
+    "uptimeYear": "100.00%",
+    "time": 286,
+    "timeDay": 286,
+    "timeWeek": 286,
+    "timeMonth": 286,
+    "timeYear": 286,
+    "dailyMinutesDown": {}
   }
 ]
