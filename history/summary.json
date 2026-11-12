@@ -5,18 +5,18 @@
     "icon": "https://icons.duckduckgo.com/ip3/aether.dhruvaldarji.com.ico",
     "slug": "aether",
     "status": "down",
-    "uptime": "71.21%",
-    "uptimeDay": "71.21%",
-    "uptimeWeek": "71.21%",
-    "uptimeMonth": "71.21%",
-    "uptimeYear": "71.21%",
-    "time": 327,
-    "timeDay": 327,
-    "timeWeek": 327,
-    "timeMonth": 327,
-    "timeYear": 327,
+    "uptime": "21.76%",
+    "uptimeDay": "21.76%",
+    "uptimeWeek": "21.76%",
+    "uptimeMonth": "21.76%",
+    "uptimeYear": "21.76%",
+    "time": 220,
+    "timeDay": 220,
+    "timeWeek": 220,
+    "timeMonth": 220,
+    "timeYear": 220,
     "dailyMinutesDown": {
-      "2026-11-12": 0
+      "2026-11-12": 1
     }
   }
 ]
