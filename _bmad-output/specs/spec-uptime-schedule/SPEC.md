@@ -20,10 +20,10 @@ This spec fixes a pain. aether-status is the off-machine monitor for the Aether 
   - **success:** After the merge, 3 consecutive Uptime CI runs with `event: schedule` appear, about 5 minutes apart.
 - **CAP-2**
   - **intent:** A real outage opens an issue and sends the alert email with no manual run.
-  - **success:** The `history/aether.yml` file updates from scheduled runs only, and an issue opens on the first scheduled run after the check target fails.
+  - **success:** In the acceptance window, `history/aether.yml` updates from scheduled runs, with no manual run. An issue opens on the first scheduled run after the check target fails. Manual and repository-dispatch runs stay allowed. The acceptance test simply does not count them.
 - **CAP-3**
   - **intent:** aether-status is a secondary repo of the AetherOS factory project at tier T0.
-  - **success:** `.aether/hooks.yaml` names the primary, aether-specs. The aether-specs manifest lists aether-status in `repos[]`. The `master` branch rules block direct pushes and require the `Devin Review` status.
+  - **success:** `.aether/hooks.yaml` names the primary, aether-specs. The aether-specs manifest lists aether-status in `repos[]`. The `master` branch rules block direct pushes from people and agents and require the `Devin Review` status. The one bypass actor is the `aether-status-upptime` GitHub App, so scheduled runs can still commit status history. A scheduled run then commits history with no failed push.
 
 ## Constraints
 
