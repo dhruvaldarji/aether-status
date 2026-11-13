@@ -79,7 +79,7 @@ test("sends one authenticated dispatch POST and logs its 204 result", async () =
     "X-GitHub-Api-Version": "2026-03-10",
   });
   assert.deepEqual(JSON.parse(options.body), { ref: "main" });
-  assert.equal(options.redirect, "error");
+  assert.equal(options.redirect, "manual");
   assert.equal(timeoutMs, 30_000);
 
   const [record] = records(result.logs);
@@ -89,6 +89,20 @@ test("sends one authenticated dispatch POST and logs its 204 result", async () =
   assert.equal(record.outcome, "success");
   assert.equal(result.logs.join("\n").includes(TEST_TOKEN), false);
   assert.equal(result.logs.join("\n").includes(RESPONSE_BODY_SECRET), false);
+});
+
+test("keeps every fetch redirect mode supported by Workers", async () => {
+  const redirectModes = [];
+  const result = await invoke({
+    fetchImplementation: async (_url, options) => {
+      redirectModes.push(options.redirect);
+      return { status: 204 };
+    },
+  });
+
+  assert.equal(result.error, undefined);
+  assert.equal(redirectModes.length, 1);
+  assert.ok(redirectModes.every((mode) => ["follow", "manual"].includes(mode)));
 });
 
 test("rejects missing and blank tokens before calling fetch", async () => {
@@ -140,29 +154,37 @@ test("rejects every response status other than 204 without reading its body", as
   }
 });
 
-test("rejects redirects and sanitizes the fetch error", async () => {
+test("rejects redirect responses without following or reading their body", async () => {
   let fetchCalls = 0;
   let redirectMode;
-  const errorText = `redirect response included ${TEST_TOKEN}`;
+  let bodyReads = 0;
   const result = await invoke({
     fetchImplementation: async (_url, options) => {
       fetchCalls += 1;
       redirectMode = options.redirect;
-      throw new TypeError(errorText);
+      return {
+        status: 302,
+        get body() {
+          bodyReads += 1;
+          return RESPONSE_BODY_SECRET;
+        },
+      };
     },
   });
 
   assert.equal(fetchCalls, 1);
-  assert.equal(redirectMode, "error");
-  assert.equal(result.error?.message, "GitHub workflow dispatch request failed");
-  assert.equal(result.logs.join("\n").includes(errorText), false);
+  assert.ok(["follow", "manual"].includes(redirectMode));
+  assert.equal(redirectMode, "manual");
+  assert.equal(bodyReads, 0);
+  assert.equal(result.error?.message, "GitHub workflow dispatch returned status 302");
+  assert.equal(result.logs.join("\n").includes(RESPONSE_BODY_SECRET), false);
   assert.equal(result.logs.join("\n").includes(TEST_TOKEN), false);
   assert.deepEqual(records(result.logs)[0], {
     event: "uptime_workflow_dispatch",
     scheduledTime: "2026-11-13T12:00:00.000Z",
     cron: CONTROLLER.cron,
+    responseStatus: 302,
     outcome: "failure",
-    error: "request_failed",
   });
 });
 
