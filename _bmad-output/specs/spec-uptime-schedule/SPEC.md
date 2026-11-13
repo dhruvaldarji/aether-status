@@ -52,4 +52,4 @@ This spec fixes a pain. aether-status is the off-machine monitor for the Aether 
 ## Assumptions
 
 - GitHub's documentation says scheduled runs can be delayed or dropped under load. That fits the 2 scheduled Uptime CI runs seen in about 8 hours on 2026-11-13. The builder found no cron or branch defect.
-- The repo has no test suite. `scripts/verify.sh` parses every workflow file and proves that the cron in the generated `uptime.yml` equals `workflowSchedule.uptime` in `.upptimerc.yml`. For CAP-4 it also checks the Worker config cron.
+- The repo has no test suite. `scripts/verify.sh` parses every workflow file and proves that the cron in the generated `uptime.yml` equals `workflowSchedule.uptime` in `.upptimerc.yml`. The CAP-4 build must extend it to check that the Worker config cron also equals that value. Until the Worker exists, this check is not present.
