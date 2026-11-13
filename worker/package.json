@@ -1,0 +1,12 @@
+{
+  "name": "aether-status-uptime-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "dry-run": "wrangler deploy --dry-run"
+  },
+  "devDependencies": {
+    "wrangler": "4.161.0"
+  }
+}
