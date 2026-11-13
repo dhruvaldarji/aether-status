@@ -47,7 +47,7 @@ async function scheduled(controller, env) {
     throw new Error("GitHub workflow dispatch request failed");
   }
 
-  const succeeded = response.status === 204;
+  const succeeded = response.status === 200 || response.status === 204;
   logDispatch(succeeded ? "log" : "error", {
     ...context,
     responseStatus: response.status,

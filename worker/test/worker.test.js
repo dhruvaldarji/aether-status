@@ -45,10 +45,12 @@ function records(logs) {
 
 test("sends one authenticated dispatch POST and logs its 204 result", async () => {
   const calls = [];
+  let bodyReads = 0;
   const response = {
     status: 204,
     get body() {
-      throw new Error(RESPONSE_BODY_SECRET);
+      bodyReads += 1;
+      return RESPONSE_BODY_SECRET;
     },
   };
   let timeoutMs;
@@ -81,6 +83,7 @@ test("sends one authenticated dispatch POST and logs its 204 result", async () =
   assert.deepEqual(JSON.parse(options.body), { ref: "main" });
   assert.equal(options.redirect, "manual");
   assert.equal(timeoutMs, 30_000);
+  assert.equal(bodyReads, 0);
 
   const [record] = records(result.logs);
   assert.equal(record.scheduledTime, "2026-11-13T12:00:00.000Z");
@@ -89,6 +92,31 @@ test("sends one authenticated dispatch POST and logs its 204 result", async () =
   assert.equal(record.outcome, "success");
   assert.equal(result.logs.join("\n").includes(TEST_TOKEN), false);
   assert.equal(result.logs.join("\n").includes(RESPONSE_BODY_SECRET), false);
+});
+
+test("accepts HTTP 200 without reading or logging its response body", async () => {
+  let bodyReads = 0;
+  const result = await invoke({
+    fetchImplementation: async () => ({
+      status: 200,
+      get body() {
+        bodyReads += 1;
+        return RESPONSE_BODY_SECRET;
+      },
+    }),
+  });
+
+  assert.equal(result.error, undefined);
+  assert.equal(bodyReads, 0);
+  assert.deepEqual(records(result.logs)[0], {
+    event: "uptime_workflow_dispatch",
+    scheduledTime: "2026-11-13T12:00:00.000Z",
+    cron: CONTROLLER.cron,
+    responseStatus: 200,
+    outcome: "success",
+  });
+  assert.equal(result.logs.join("\n").includes(RESPONSE_BODY_SECRET), false);
+  assert.equal(result.logs.join("\n").includes(TEST_TOKEN), false);
 });
 
 test("keeps every fetch redirect mode supported by Workers", async () => {
@@ -126,8 +154,12 @@ test("rejects missing and blank tokens before calling fetch", async () => {
   }
 });
 
-test("rejects every response status other than 204 without reading its body", async () => {
-  for (const status of [200, 202, 500]) {
+test("rejects every HTTP status other than 200 or 204 without reading its body", async () => {
+  for (let status = 100; status <= 599; status += 1) {
+    if (status === 200 || status === 204) {
+      continue;
+    }
+
     let fetchCalls = 0;
     let bodyReads = 0;
     const result = await invoke({
