@@ -16,6 +16,7 @@ if ! python3 -c 'import yaml' >/dev/null 2>&1; then
 fi
 
 python3 - <<'PY'
+import json
 import sys
 from pathlib import Path
 
@@ -81,6 +82,33 @@ if generated_cron != configured_cron:
         f"but {uptime_path} has {generated_cron!r}"
     )
 
+worker_config_path = Path("worker/wrangler.json")
+if not worker_config_path.is_file():
+    fail(f"Worker Wrangler config is missing: {worker_config_path}")
+try:
+    with worker_config_path.open(encoding="utf-8") as stream:
+        worker_config = json.load(stream)
+except (OSError, json.JSONDecodeError) as error:
+    fail(f"Could not parse Worker Wrangler config {worker_config_path}: {error}")
+if not isinstance(worker_config, dict):
+    fail(f"Worker Wrangler config must have a mapping at its root: {worker_config_path}")
+
+worker_triggers = worker_config.get("triggers")
+if not isinstance(worker_triggers, dict):
+    fail(f"{worker_config_path} must contain a triggers mapping")
+worker_crons = worker_triggers.get("crons")
+if not isinstance(worker_crons, list) or len(worker_crons) != 1:
+    fail(f"{worker_config_path} must contain exactly one cron entry")
+worker_cron = worker_crons[0]
+if not isinstance(worker_cron, str) or not worker_cron.strip():
+    fail(f"{worker_config_path} cron entry must be a nonempty string")
+if worker_cron != configured_cron:
+    fail(
+        f"Worker cron mismatch: {worker_config_path} has {worker_cron!r}, "
+        f"but {config_path} has {configured_cron!r}"
+    )
+
 print(f"PASS: parsed {len(workflow_paths)} workflow YAML files")
 print(f"PASS: Uptime cron matches .upptimerc.yml ({configured_cron})")
+print(f"PASS: Worker cron matches .upptimerc.yml ({worker_cron})")
 PY
