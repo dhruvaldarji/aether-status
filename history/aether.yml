@@ -1,7 +1,7 @@
 url: https://aether.dhruvaldarji.com/health
-status: down
-code: 503
-responseTime: 143
-lastUpdated: 2026-11-26T20:43:20.424Z
+status: up
+code: 200
+responseTime: 232
+lastUpdated: 2026-11-26T21:58:02.625Z
 startTime: 2026-11-12T20:29:50.860Z
 generator: Upptime <https://github.com/upptime/upptime>
